@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Outlet, Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
 import {
 	Card,
@@ -9,8 +11,9 @@ import {
 	Typography,
 	Grid,
 	LinearProgress,
+	Container,
 } from '@mui/material';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import RefreshData from './RefreshData';
 
@@ -77,16 +80,18 @@ const SpotlightCard = () => {
 										Share
 									</Button>
 									<Button
-										variant='outlined'
+										component={RouterLink}
+										to={`/user/${person.id}`}
+										variant='contained'
 										size='small'
-										color='danger'
+										color='info'
 										sx={{
 											'&:hover': {
 												bgcolor: (theme) => theme.palette.danger.main,
 												color: 'white',
 											},
 										}}>
-										Delete
+										More Info
 									</Button>
 								</CardActions>
 							</Card>
