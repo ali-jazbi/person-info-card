@@ -32,10 +32,10 @@ function App() {
 	});
 
 	return (
-		<QueryClientProvider client={queryClient}>
-			<CssBaseline />
-			<ThemeContext.Provider value={{ darkMode, btnDarkMode }}>
-				<ThemeProvider theme={theme}>
+		<ThemeContext.Provider value={{ darkMode, btnDarkMode }}>
+			<ThemeProvider theme={theme}>
+				<QueryClientProvider client={queryClient}>
+					<CssBaseline />
 					<Routes>
 						<Route element={<Layout />}>
 							<Route
@@ -48,9 +48,9 @@ function App() {
 							/>
 						</Route>
 					</Routes>
-				</ThemeProvider>
-			</ThemeContext.Provider>
-		</QueryClientProvider>
+				</QueryClientProvider>
+			</ThemeProvider>
+		</ThemeContext.Provider>
 	);
 }
 

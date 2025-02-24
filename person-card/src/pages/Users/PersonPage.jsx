@@ -56,6 +56,7 @@ const PersonPage = () => {
 							sx={{
 								width: '300px',
 								height: '200px',
+								objectFit: 'cover',
 								borderRadius: '8px',
 								marginTop: 2,
 								marginBottom: 2,
