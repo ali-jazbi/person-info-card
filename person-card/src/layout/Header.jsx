@@ -1,8 +1,10 @@
 import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-
-const Header = ({ darkMode, toggleDarkMode }) => {
+import { useContext } from 'react';
+import { ThemeContext } from '../App';
+const Header = () => {
+	const { darkMode, btnDarkMode } = useContext(ThemeContext);
 	return (
 		<AppBar
 			position='static'
@@ -26,7 +28,7 @@ const Header = ({ darkMode, toggleDarkMode }) => {
 					}}>
 					Person Management
 				</Typography>
-				<IconButton onClick={toggleDarkMode}>
+				<IconButton onClick={btnDarkMode}>
 					{darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
 				</IconButton>
 			</Toolbar>
