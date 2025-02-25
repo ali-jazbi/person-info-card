@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { styled } from '@mui/material/styles';
 import { Outlet, Link as RouterLink, useSearchParams } from 'react-router-dom';
+// Import Custom Components
+import MyCard from './Card';
 import axios from 'axios';
 import {
 	Card,
@@ -215,6 +217,13 @@ const SpotlightCard = () => {
 		},
 		[formData, handleClose, people]
 	);
+	const handleDelete = useCallback((id) => {
+		setPeople((prevPeople) => prevPeople.filter((person) => person.id !== id));
+
+		const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+		const updatedUsers = storedUsers.filter((user) => user.id !== id);
+		localStorage.setItem('users', JSON.stringify(updatedUsers));
+	}, []);
 	// Effects
 	useEffect(() => {
 		if (searchInputRef.current) {
@@ -388,83 +397,6 @@ const SpotlightCard = () => {
 		</Grid>
 	);
 
-	const renderPersonCard = (person) => (
-		<Grid
-			item
-			xs={12}
-			sm={6}
-			md={3}
-			key={person.id}>
-			<Card
-				elevation={3}
-				sx={{
-					'&:hover': { boxShadow: 6 },
-					maxWidth: 345,
-					height: '100%',
-				}}>
-				<CardMedia
-					sx={{ height: 150, objectFit: 'cover' }}
-					image={`https://picsum.photos/id/${person.id + 10}/200/300`}
-					title={person.name}
-				/>
-				<CardContent>
-					<Typography
-						gutterBottom
-						variant='h6'
-						sx={{ whiteSpace: 'nowrap' }}
-						component='div'>
-						{person.name}
-					</Typography>
-					<Typography
-						variant='body2'
-						color='text.secondary'>
-						{person.email}
-					</Typography>
-					<Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-						{person.gender === 'male' ? (
-							<MaleIcon color='primary' />
-						) : (
-							<FemaleIcon color='secondary' />
-						)}{' '}
-						<Typography
-							variant='body2'
-							sx={{ ml: 1 }}>
-							Age: {person.age}
-						</Typography>
-					</Box>
-				</CardContent>
-				<CardActions sx={{ m: 1 }}>
-					<Button
-						variant='contained'
-						size='small'
-						color='success'
-						sx={{
-							'&:hover': {
-								bgcolor: 'success.dark',
-								color: 'white',
-							},
-						}}>
-						Share
-					</Button>
-					<Button
-						component={RouterLink}
-						to={`/user/${person.id}`}
-						variant='contained'
-						size='small'
-						color='info'
-						sx={{
-							'&:hover': {
-								bgcolor: 'info.dark',
-								color: 'white',
-							},
-						}}>
-						More Info
-					</Button>
-				</CardActions>
-			</Card>
-		</Grid>
-	);
-
 	const renderPagination = () => (
 		<Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
 			<Pagination
@@ -630,7 +562,7 @@ const SpotlightCard = () => {
 						<Grid
 							container
 							spacing={3}>
-							{paginatedData.map(renderPersonCard)}
+							{paginatedData.map()}
 						</Grid>
 						{!people.isLoading && filteredData.length > 0 && renderPagination()}
 						{!people.isLoading && filteredData.length === 0 && renderNoResults()}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import {
 	Button,
 	Typography,
@@ -18,33 +18,40 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const PersonPage = () => {
 	const { id } = useParams();
+	const navigate = useNavigate();
 	const [imageLoaded, setImageLoaded] = useState(false);
 
 	const peopleQuery = useQuery({
 		queryKey: ['user', id],
 		queryFn: async () => {
+			// Try to get user from localStorage
 			const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-			const storedUser = storedUsers.find((user) => user.id === parseInt(id));
+			const user = storedUsers.find((user) => String(user.id) === String(id));
 
-			if (storedUser) {
-				return storedUser;
+			if (user) {
+				return user;
 			}
 
-			const { data } = await axios.get(
-				`https://jsonplaceholder.typicode.com/users/${id}`
-			);
-			return {
-				...data,
-				gender: Math.random() > 0.5 ? 'male' : 'female',
-				age: Math.floor(Math.random() * (70 - 18 + 1)) + 18,
-			};
+			// If user not found in localStorage, fetch from API
+			try {
+				const response = await axios.get(`https://dummyjson.com/users/${id}`);
+				return response.data;
+			} catch (error) {
+				console.error('Error fetching user data:', error);
+				throw new Error('User not found');
+			}
+		},
+		retry: false,
+		onError: (error) => {
+			console.error('Error in query:', error);
+			navigate('/');
 		},
 	});
 
 	useEffect(() => {
-		if (peopleQuery.data) {
+		if (peopleQuery.data?.image) {
 			const img = new Image();
-			img.src = `https://picsum.photos/id/${peopleQuery.data.id + 10}/200/300`;
+			img.src = peopleQuery.data.image;
 			img.onload = () => setImageLoaded(true);
 		}
 	}, [peopleQuery.data]);
@@ -97,7 +104,11 @@ const PersonPage = () => {
 		);
 	}
 
-	const userData = peopleQuery.data;
+	if (!peopleQuery.data) {
+		return <Typography>No user data available</Typography>;
+	}
+
+	const { name, email, gender, age, image } = peopleQuery.data;
 
 	return (
 		<div>
@@ -142,8 +153,8 @@ const PersonPage = () => {
 							variant='h5'
 							sx={{ fontSize: 27 }}
 							component={'h1'}>
-							{userData?.name}{' '}
-							{userData?.gender === 'male' ? (
+							{name}
+							{gender === 'male' ? (
 								<MaleIcon color='primary' />
 							) : (
 								<FemaleIcon color='secondary' />
@@ -160,8 +171,8 @@ const PersonPage = () => {
 						) : (
 							<Box
 								component='img'
-								src={`https://picsum.photos/id/${userData?.id + 10}/200/300`}
-								alt={`Avatar of ${userData?.name}`}
+								src={image}
+								alt={`Avatar of ${name}`}
 								sx={{
 									width: '300px',
 									height: '200px',
@@ -176,13 +187,12 @@ const PersonPage = () => {
 							variant='h6'
 							component={'p'}
 							sx={{ marginTop: 2, marginBottom: 2 }}>
-							{userData?.email}
+							{email}
 						</Typography>
 						<Typography
 							variant='body1'
-							component={'p'}
-							sx={{ marginTop: 2, marginBottom: 2 }}>
-							Age: {userData?.age}
+							component={'p'}>
+							Age: {age}
 						</Typography>
 						<Typography
 							variant='body1'
