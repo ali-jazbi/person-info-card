@@ -1,19 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { styled } from '@mui/material/styles';
-import { Outlet, Link as RouterLink, useSearchParams } from 'react-router-dom';
-// Import Custom Components
-import MyCard from './Card';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import {
 	Card,
 	CardActions,
 	CardContent,
-	CardMedia,
 	Button,
 	Typography,
 	Grid,
-	Container,
 	Skeleton,
 	Pagination,
 	InputBase,
@@ -30,19 +26,16 @@ import {
 	DialogActions,
 	TextField,
 	MenuItem,
-	AccordionDetails,
 	Select,
 	InputLabel,
 	FormControl,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import MaleIcon from '@mui/icons-material/Male';
-import FemaleIcon from '@mui/icons-material/Female';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import PersonCard from './PersonCard';
+import SearchFilter from './SearchFilter';
 // Styled components
 const Search = styled('div')(({ theme }) => ({
 	position: 'relative',
@@ -518,33 +511,8 @@ const SpotlightCard = () => {
 		<Grid
 			container
 			spacing={3}>
-			{/* Header and Search */}
-			<Grid
-				item
-				xs={12}>
-				<Box
-					sx={{
-						display: 'flex',
-						flexDirection: { xs: 'column', sm: 'row' },
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						gap: 2,
-					}}>
-					<Typography
-						variant='h4'
-						component='h1'>
-						Person List
-					</Typography>
-					{renderSearchBar()}
-				</Box>
-			</Grid>
-
-			{/* Filters */}
-			<Grid
-				item
-				xs={12}>
-				{renderFilterControls()}
-			</Grid>
+			{/* Header and Search and Filter */}
+			<SearchFilter />
 			{/* Dialog Box Show */}
 			<Grid
 				item
@@ -562,7 +530,16 @@ const SpotlightCard = () => {
 						<Grid
 							container
 							spacing={3}>
-							{paginatedData.map()}
+							{paginatedData.map((person) => (
+								<Grid
+									item
+									xs={12}
+									sm={6}
+									md={3}
+									key={person.id}>
+									<PersonCard person={person} />
+								</Grid>
+							))}
 						</Grid>
 						{!people.isLoading && filteredData.length > 0 && renderPagination()}
 						{!people.isLoading && filteredData.length === 0 && renderNoResults()}
