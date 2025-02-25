@@ -34,9 +34,9 @@ function App() {
 				contrastText: '#fff',
 			},
 			secondary: {
-				main: '#f50057',
-				light: '#ff4081',
-				dark: '#c51162',
+				main: '#80CBC4',
+				light: '#B2FEF7',
+				dark: '#4F9A94',
 				contrastText: '#fff',
 			},
 			error: {

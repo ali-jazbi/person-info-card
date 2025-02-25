@@ -22,10 +22,23 @@ const PersonPage = () => {
 
 	const peopleQuery = useQuery({
 		queryKey: ['user', id],
-		queryFn: () =>
-			axios
-				.get(`https://jsonplaceholder.typicode.com/users/${id}`)
-				.then(({ data }) => data),
+		queryFn: async () => {
+			const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+			const storedUser = storedUsers.find((user) => user.id === parseInt(id));
+
+			if (storedUser) {
+				return storedUser;
+			}
+
+			const { data } = await axios.get(
+				`https://jsonplaceholder.typicode.com/users/${id}`
+			);
+			return {
+				...data,
+				gender: Math.random() > 0.5 ? 'male' : 'female',
+				age: Math.floor(Math.random() * (70 - 18 + 1)) + 18,
+			};
+		},
 	});
 
 	useEffect(() => {
@@ -84,6 +97,8 @@ const PersonPage = () => {
 		);
 	}
 
+	const userData = peopleQuery.data;
+
 	return (
 		<div>
 			<CssBaseline />
@@ -127,8 +142,8 @@ const PersonPage = () => {
 							variant='h5'
 							sx={{ fontSize: 27 }}
 							component={'h1'}>
-							{peopleQuery.data?.name}{' '}
-							{peopleQuery.data?.gender === 'male' ? (
+							{userData?.name}{' '}
+							{userData?.gender === 'male' ? (
 								<MaleIcon color='primary' />
 							) : (
 								<FemaleIcon color='secondary' />
@@ -145,8 +160,8 @@ const PersonPage = () => {
 						) : (
 							<Box
 								component='img'
-								src={`https://picsum.photos/id/${peopleQuery.data?.id + 10}/200/300`}
-								alt={`Avatar of ${peopleQuery.data?.name}`}
+								src={`https://picsum.photos/id/${userData?.id + 10}/200/300`}
+								alt={`Avatar of ${userData?.name}`}
 								sx={{
 									width: '300px',
 									height: '200px',
@@ -161,7 +176,13 @@ const PersonPage = () => {
 							variant='h6'
 							component={'p'}
 							sx={{ marginTop: 2, marginBottom: 2 }}>
-							{peopleQuery.data?.email}
+							{userData?.email}
+						</Typography>
+						<Typography
+							variant='body1'
+							component={'p'}
+							sx={{ marginTop: 2, marginBottom: 2 }}>
+							Age: {userData?.age}
 						</Typography>
 						<Typography
 							variant='body1'

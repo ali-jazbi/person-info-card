@@ -19,15 +19,27 @@ import {
 	IconButton,
 	Radio,
 	RadioGroup,
-	FormControlLabel,
-	FormControl,
 	FormLabel,
+	FormControlLabel,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogContentText,
+	DialogActions,
+	TextField,
+	MenuItem,
+	AccordionDetails,
+	Select,
+	InputLabel,
+	FormControl,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
@@ -74,6 +86,7 @@ const ITEMS_PER_PAGE = 4;
 const SpotlightCard = () => {
 	// URL params and state
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [people, setPeople] = useState([]);
 	const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
 	const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 	const [searchInput, setSearchInput] = useState('');
@@ -81,9 +94,14 @@ const SpotlightCard = () => {
 		searchParams.get('gender') || 'all'
 	);
 	const [ageFilter, setAgeFilter] = useState(searchParams.get('age') || 'all');
-
+	const [openDialog, setOpenDialog] = useState(false);
 	const searchInputRef = useRef(null);
-
+	const [formData, setFormData] = useState({
+		name: '',
+		email: '',
+		age: '',
+		gender: '',
+	});
 	// Data fetching
 	const peopleQuery = useQuery({
 		queryKey: ['people'],
@@ -91,31 +109,31 @@ const SpotlightCard = () => {
 			const { data } = await axios.get(
 				'https://jsonplaceholder.typicode.com/users'
 			);
-			return data.map((user) => ({
+			const formattedData = data.map((user) => ({
 				...user,
 				gender: Math.random() > 0.5 ? 'male' : 'female',
 				age: Math.floor(Math.random() * (70 - 18 + 1)) + 18,
 			}));
+			setPeople(formattedData);
+			return formattedData;
 		},
 	});
 
 	// Filter data based on search term, gender, and age
-	const filteredData = peopleQuery?.data
-		? peopleQuery.data.filter((person) => {
-				const searchableFields = [person.name, person.email];
-				const matchesSearch = searchableFields.some((field) =>
-					field.toLowerCase().startsWith(searchTerm.toLowerCase())
-				);
-				const matchesGender =
-					genderFilter === 'all' || person.gender === genderFilter;
-				const matchesAge =
-					ageFilter === 'all' ||
-					(ageFilter === 'young' && person.age < 30) ||
-					(ageFilter === 'old' && person.age >= 30);
+	const filteredData = people.filter((person) => {
+		const searchableFields = [person.name, person.email];
+		const matchesSearch = searchableFields.some((field) =>
+			field.toLowerCase().startsWith(searchTerm.toLowerCase())
+		);
+		const matchesGender =
+			genderFilter === 'all' || person.gender === genderFilter;
+		const matchesAge =
+			ageFilter === 'all' ||
+			(ageFilter === 'young' && person.age < 30) ||
+			(ageFilter === 'old' && person.age >= 30);
 
-				return matchesSearch && matchesGender && matchesAge;
-		  })
-		: [];
+		return matchesSearch && matchesGender && matchesAge;
+	});
 
 	// Pagination
 	const paginatedData = filteredData.slice(
@@ -163,7 +181,40 @@ const SpotlightCard = () => {
 		setPage(1);
 		searchInputRef.current.focus();
 	}, []);
+	const handleClickOpen = useCallback(() => {
+		setOpenDialog(true);
+	}, []);
 
+	const handleClose = useCallback(() => {
+		setOpenDialog(false);
+		setFormData({ name: '', email: '', age: '', gender: '' }); // Reset form data
+	}, []);
+	const handleInputChange = useCallback((event) => {
+		const { name, value } = event.target;
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
+	}, []);
+
+	const handleSubmit = useCallback(
+		(event) => {
+			event.preventDefault();
+			const newPerson = {
+				...formData,
+				id: people.length + 1,
+			};
+			setPeople((prevPeople) => [...prevPeople, newPerson]);
+
+			// ذخیره کاربر جدید در localStorage
+			const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+			localStorage.setItem('users', JSON.stringify([...storedUsers, newPerson]));
+
+			console.log(newPerson);
+			handleClose();
+		},
+		[formData, handleClose, people]
+	);
 	// Effects
 	useEffect(() => {
 		if (searchInputRef.current) {
@@ -433,6 +484,102 @@ const SpotlightCard = () => {
 			No results found for "{searchTerm}"
 		</Typography>
 	);
+	const renderDialogButton = useCallback(
+		() => (
+			<Box sx={{ width: '100%', display: 'flex', justifyContent: 'end' }}>
+				<Button
+					onClick={handleClickOpen}
+					variant='contained'
+					color='secondary'
+					startIcon={<AddIcon />}
+					sx={(theme) => ({
+						// ... سایر استایل‌ها
+					})}>
+					Add Item
+				</Button>
+
+				<Dialog
+					open={openDialog}
+					onClose={handleClose}>
+					<form onSubmit={handleSubmit}>
+						<DialogTitle>Add New Person</DialogTitle>
+						<DialogContent>
+							<DialogContentText>
+								Please enter the details of the new person.
+							</DialogContentText>
+							<TextField
+								autoFocus
+								required
+								margin='dense'
+								id='name'
+								name='name'
+								label='Name'
+								type='text'
+								fullWidth
+								variant='standard'
+								value={formData.name}
+								onChange={handleInputChange}
+							/>
+							<TextField
+								required
+								margin='dense'
+								id='email'
+								name='email'
+								label='Email Address'
+								type='email'
+								fullWidth
+								variant='standard'
+								value={formData.email}
+								onChange={handleInputChange}
+							/>
+							<TextField
+								required
+								margin='dense'
+								id='age'
+								name='age'
+								label='Age'
+								type='number'
+								fullWidth
+								variant='standard'
+								InputProps={{ inputProps: { min: 0, max: 120 } }}
+								value={formData.age}
+								onChange={handleInputChange}
+							/>
+							<FormControl
+								fullWidth
+								margin='dense'>
+								<InputLabel id='gender-label'>Gender</InputLabel>
+								<Select
+									labelId='gender-label'
+									id='gender'
+									name='gender'
+									label='Gender'
+									value={formData.gender}
+									onChange={handleInputChange}
+									required>
+									<MenuItem value='male'>Male</MenuItem>
+									<MenuItem value='female'>Female</MenuItem>
+									<MenuItem value='other'>Other</MenuItem>
+								</Select>
+							</FormControl>
+						</DialogContent>
+						<DialogActions>
+							<Button onClick={handleClose}>Cancel</Button>
+							<Button type='submit'>Add</Button>
+						</DialogActions>
+					</form>
+				</Dialog>
+			</Box>
+		),
+		[
+			openDialog,
+			formData,
+			handleClickOpen,
+			handleClose,
+			handleInputChange,
+			handleSubmit,
+		]
+	);
 
 	// Main render
 	return (
@@ -466,12 +613,17 @@ const SpotlightCard = () => {
 				xs={12}>
 				{renderFilterControls()}
 			</Grid>
-
+			{/* Dialog Box Show */}
+			<Grid
+				item
+				xs={12}>
+				{renderDialogButton()}
+			</Grid>
 			{/* Card Group */}
 			<Grid
 				item
 				xs={12}>
-				{peopleQuery?.isLoading ? (
+				{people?.isLoading ? (
 					renderLoadingSkeletons()
 				) : (
 					<>
@@ -480,8 +632,8 @@ const SpotlightCard = () => {
 							spacing={3}>
 							{paginatedData.map(renderPersonCard)}
 						</Grid>
-						{!peopleQuery.isLoading && filteredData.length > 0 && renderPagination()}
-						{!peopleQuery.isLoading && filteredData.length === 0 && renderNoResults()}
+						{!people.isLoading && filteredData.length > 0 && renderPagination()}
+						{!people.isLoading && filteredData.length === 0 && renderNoResults()}
 					</>
 				)}
 			</Grid>
