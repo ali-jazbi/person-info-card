@@ -10,6 +10,7 @@ import {
 	Container,
 	Box,
 	Skeleton,
+	Tooltip,
 } from '@mui/material';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
@@ -86,32 +87,34 @@ const PersonPage = () => {
 	return (
 		<div>
 			<CssBaseline />
-			<Button
-				component={Link}
-				to='/'
-				variant='outlined'
-				sx={{
-					minWidth: 'auto',
-					width: '35px',
-					height: '35px',
-					borderRadius: '50%',
-					padding: 0,
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					position: 'absolute',
-					top: '95px',
-					left: '300px',
-					'&:hover': {
-						bgcolor: 'primary.main',
-						color: 'white',
-					},
-				}}>
-				<FontAwesomeIcon
-					icon='fa-solid fa-xmark'
-					size='lg'
-				/>
-			</Button>
+			<Tooltip title='Back to Home'>
+				<Button
+					component={Link}
+					to='/'
+					variant='outlined'
+					sx={{
+						minWidth: 'auto',
+						width: '35px',
+						height: '35px',
+						borderRadius: '50%',
+						padding: 0,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						position: 'absolute',
+						top: '95px',
+						left: '300px',
+						'&:hover': {
+							bgcolor: 'primary.main',
+							color: 'white',
+						},
+					}}>
+					<FontAwesomeIcon
+						icon='fa-solid fa-xmark'
+						size='lg'
+					/>
+				</Button>
+			</Tooltip>
 			<Container>
 				<Grid
 					container
