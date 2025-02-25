@@ -41,7 +41,7 @@ function App() {
 							<Route
 								path='/'
 								element={<Home />}
-							/>{' '}
+							/>
 							<Route
 								path='user/:id'
 								element={<PersonPage />}
