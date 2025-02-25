@@ -1,5 +1,11 @@
 import { useState, createContext } from 'react';
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import {
+	CssBaseline,
+	ThemeProvider,
+	createTheme,
+	alpha,
+	lighten,
+} from '@mui/material';
 import Home from './pages/Home.jsx';
 import Layout from './layout/Layout';
 import { Routes, Route } from 'react-router-dom';
@@ -22,14 +28,78 @@ function App() {
 		palette: {
 			mode: darkMode ? 'dark' : 'light',
 			primary: {
-				main: '#1976d2',
-			},
-			danger: {
-				main: '#f54336',
+				main: '#3f51b5',
+				light: '#757de8',
+				dark: '#002984',
 				contrastText: '#fff',
+			},
+			secondary: {
+				main: '#f50057',
+				light: '#ff4081',
+				dark: '#c51162',
+				contrastText: '#fff',
+			},
+			error: {
+				main: '#f44336',
+			},
+			warning: {
+				main: '#ff9800',
+			},
+			info: {
+				main: '#2196f3',
+			},
+			success: {
+				main: '#4caf50',
+				contrastText: '#fff',
+			},
+			background: {
+				default: darkMode ? '#303030' : '#fafafa',
+				paper: darkMode ? '#424242' : '#fff',
+			},
+		},
+		typography: {
+			fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+			h1: {
+				fontSize: '2.5rem',
+				fontWeight: 500,
+			},
+			h2: {
+				fontSize: '2rem',
+				fontWeight: 500,
+			},
+			body1: {
+				fontSize: '1rem',
+				lineHeight: 1.5,
+			},
+		},
+		shape: {
+			borderRadius: 8,
+		},
+		components: {
+			MuiButton: {
+				styleOverrides: {
+					root: {
+						textTransform: 'none',
+					},
+				},
+			},
+			MuiCard: {
+				styleOverrides: {
+					root: {
+						boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+					},
+				},
 			},
 		},
 	});
+	const backgroundColor = alpha(
+		darkMode ? theme.palette.common.white : theme.palette.common.black,
+		0.15
+	);
+	const hoverBackgroundColor = lighten(backgroundColor, 0.3);
+
+	theme.palette.background.custom = backgroundColor;
+	theme.palette.background.customHover = hoverBackgroundColor;
 
 	return (
 		<ThemeContext.Provider value={{ darkMode, btnDarkMode }}>

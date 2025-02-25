@@ -11,6 +11,8 @@ import {
 	Box,
 	Skeleton,
 } from '@mui/material';
+import MaleIcon from '@mui/icons-material/Male';
+import FemaleIcon from '@mui/icons-material/Female';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const PersonPage = () => {
@@ -98,8 +100,8 @@ const PersonPage = () => {
 					justifyContent: 'center',
 					alignItems: 'center',
 					position: 'absolute',
-					top: '85px',
-					left: '40px',
+					top: '95px',
+					left: '300px',
 					'&:hover': {
 						bgcolor: 'primary.main',
 						color: 'white',
@@ -122,7 +124,12 @@ const PersonPage = () => {
 							variant='h5'
 							sx={{ fontSize: 27 }}
 							component={'h1'}>
-							{peopleQuery.data?.name}
+							{peopleQuery.data?.name}{' '}
+							{peopleQuery.data?.gender === 'male' ? (
+								<MaleIcon color='primary' />
+							) : (
+								<FemaleIcon color='secondary' />
+							)}
 						</Typography>
 						{!imageLoaded ? (
 							<Skeleton

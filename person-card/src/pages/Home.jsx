@@ -24,7 +24,7 @@ const Home = () => {
 			<Container
 				sx={{ minHeight: 'calc(100vh - 64px)', paddingTop: 4, paddingBottom: 5 }}>
 				{/* <FontAwesomeIcon icon="fa-duotone fa-solid fa-spinner-third" spin /> */}
-
+				{/* 
 				<Typography
 					variant='h4'
 					component='h1'
@@ -37,7 +37,7 @@ const Home = () => {
 						},
 					}}>
 					Person Management
-				</Typography>
+				</Typography> */}
 				<SpotlightCard />
 			</Container>
 		</div>
