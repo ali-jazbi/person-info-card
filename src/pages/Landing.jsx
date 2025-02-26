@@ -12,7 +12,7 @@ const Landing = () => {
 				profile picture.
 			</p>
 			<p>Feel free to explore the features and test it out.</p>
-			<Link to={`/people`}>
+			<Link to={`/userlist`}>
 				<Button>Go to People Page</Button>
 			</Link>
 		</Container>
