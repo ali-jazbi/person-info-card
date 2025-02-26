@@ -14,11 +14,9 @@ const Home = () => {
 	const peopleQuery = useQuery({
 		queryKey: ['people'],
 		queryFn: () => {
-			return axios
-				.get('https://jsonplaceholder.typicode.com/users')
-				.then((response) => {
-					return response.data;
-				});
+			return axios.get('https://dummyjson.com/users').then((response) => {
+				return response.data.users;
+			});
 		},
 	});
 	// Pagnation And Pages

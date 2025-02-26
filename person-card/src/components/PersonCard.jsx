@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
 	Card,
@@ -13,11 +12,6 @@ import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 
 const PersonCard = ({ person }) => {
-
-	const handleDelete = useCallback((id) => {
-	// api call
-	}, []);
-
 	return (
 		<Card
 			elevation={3}
@@ -28,8 +22,10 @@ const PersonCard = ({ person }) => {
 			}}>
 			<CardMedia
 				sx={{ height: 150, objectFit: 'cover' }}
-				image={`https://picsum.photos/id/${person.id + 10}/200/300`}
-				title={person.name}
+				image={`https://dummyjson.com/image/400x200/008080/ffffff?fontFamily=pacifico&text=${
+					person.firstName + person.lastName
+				}`}
+				title={person.firstName + person.lastName}
 			/>
 			<CardContent>
 				<Typography
@@ -37,7 +33,7 @@ const PersonCard = ({ person }) => {
 					variant='h6'
 					sx={{ whiteSpace: 'nowrap' }}
 					component='div'>
-					{person.name}
+					{person.firstName + person.lastName}
 				</Typography>
 				<Typography
 					variant='body2'

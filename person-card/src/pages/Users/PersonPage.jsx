@@ -24,14 +24,6 @@ const PersonPage = () => {
 	const peopleQuery = useQuery({
 		queryKey: ['user', id],
 		queryFn: async () => {
-			// Try to get user from localStorage
-			const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-			const user = storedUsers.find((user) => String(user.id) === String(id));
-
-			if (user) {
-				return user;
-			}
-
 			// If user not found in localStorage, fetch from API
 			try {
 				const response = await axios.get(`https://dummyjson.com/users/${id}`);
@@ -47,14 +39,6 @@ const PersonPage = () => {
 			navigate('/');
 		},
 	});
-
-	useEffect(() => {
-		if (peopleQuery.data?.image) {
-			const img = new Image();
-			img.src = peopleQuery.data.image;
-			img.onload = () => setImageLoaded(true);
-		}
-	}, [peopleQuery.data]);
 
 	if (peopleQuery.isLoading) {
 		return (
@@ -108,7 +92,7 @@ const PersonPage = () => {
 		return <Typography>No user data available</Typography>;
 	}
 
-	const { name, email, gender, age, image } = peopleQuery.data;
+	const { firstName, lastName, email, gender, age } = peopleQuery.data;
 
 	return (
 		<div>
@@ -153,14 +137,14 @@ const PersonPage = () => {
 							variant='h5'
 							sx={{ fontSize: 27 }}
 							component={'h1'}>
-							{name}
+							{firstName} {lastName}
 							{gender === 'male' ? (
 								<MaleIcon color='primary' />
 							) : (
 								<FemaleIcon color='secondary' />
 							)}
 						</Typography>
-						{!imageLoaded ? (
+						{!imageLoaded && (
 							<Skeleton
 								variant='rectangular'
 								width={300}
@@ -168,21 +152,25 @@ const PersonPage = () => {
 								animation='wave'
 								sx={{ marginTop: 2, marginBottom: 2 }}
 							/>
-						) : (
-							<Box
-								component='img'
-								src={image}
-								alt={`Avatar of ${name}`}
-								sx={{
-									width: '300px',
-									height: '200px',
-									objectFit: 'cover',
-									borderRadius: '8px',
-									marginTop: 2,
-									marginBottom: 2,
-								}}
-							/>
 						)}
+						<Box
+							component='img'
+							src={`https://dummyjson.com/image/400x200/008080/ffffff?fontFamily=pacifico&text=${
+								firstName + ' ' + lastName
+							}`}
+							onLoad={() => setImageLoaded(true)}
+							alt={`Avatar of ${firstName} ${lastName}`}
+							sx={{
+								width: '300px',
+								height: '200px',
+								objectFit: 'cover',
+								borderRadius: '8px',
+								marginTop: 2,
+								marginBottom: 2,
+								display: imageLoaded ? 'block' : 'none',
+								boxShadow: '5px 5px 3px 1px #c4c4c4',
+							}}
+						/>
 						<Typography
 							variant='h6'
 							component={'p'}
