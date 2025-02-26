@@ -7,9 +7,9 @@ import {
 	lighten,
 } from '@mui/material';
 import Home from './pages/Home.jsx';
+import PersonPage from './pages/Users/PersonPage.jsx';
 import Layout from './layout/Layout';
 import { Routes, Route } from 'react-router-dom';
-import PersonPage from './pages/Users/PersonPage.jsx';
 export const ThemeContext = createContext();
 import '/src/assets/js/solid.js';
 import '/src/assets/js/light.js';

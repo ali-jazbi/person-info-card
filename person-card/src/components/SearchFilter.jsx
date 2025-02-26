@@ -57,12 +57,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	},
 }));
 
-// Constants
-
-const SearchFilter = () => {
+const SearchFilter = ({ page, setPage }) => {
 	// URL params and state
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
 	const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 	const [searchInput, setSearchInput] = useState('');
 	const [genderFilter, setGenderFilter] = useState(
@@ -70,12 +67,6 @@ const SearchFilter = () => {
 	);
 	const [ageFilter, setAgeFilter] = useState(searchParams.get('age') || 'all');
 	const searchInputRef = useRef(null);
-
-	// Data fetching
-
-	// Filter data based on search term, gender, and age
-
-	// Pagination
 
 	// Event handlers
 	const handleReset = useCallback(() => {
@@ -85,17 +76,23 @@ const SearchFilter = () => {
 		setAgeFilter('all');
 		setPage(1);
 		setSearchParams(new URLSearchParams());
-	}, [setSearchParams]);
+	}, [setSearchParams, setPage]);
 
-	const handleAgeFilterChange = useCallback((event) => {
-		setAgeFilter(event.target.value);
-		setPage(1);
-	}, []);
+	const handleAgeFilterChange = useCallback(
+		(event) => {
+			setAgeFilter(event.target.value);
+			setPage(1);
+		},
+		[setPage]
+	);
 
-	const handleGenderFilterChange = useCallback((event) => {
-		setGenderFilter(event.target.value);
-		setPage(1);
-	}, []);
+	const handleGenderFilterChange = useCallback(
+		(event) => {
+			setGenderFilter(event.target.value);
+			setPage(1);
+		},
+		[setPage]
+	);
 
 	const handleSearchChange = useCallback((event) => {
 		setSearchInput(event.target.value);
@@ -104,14 +101,14 @@ const SearchFilter = () => {
 	const handleSearch = useCallback(() => {
 		setSearchTerm(searchInput);
 		setPage(1);
-	}, [searchInput]);
+	}, [searchInput, setPage]);
 
 	const handleClearSearch = useCallback(() => {
 		setSearchInput('');
 		setSearchTerm('');
 		setPage(1);
 		searchInputRef.current.focus();
-	}, []);
+	}, [setPage]);
 
 	// Effects
 	useEffect(() => {
