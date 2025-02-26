@@ -35,8 +35,13 @@ const Header = () => {
 					</Link>
 					<Link
 						style={{ color: 'white', textDecoration: 'none', marginInline: '50px' }}
-						to={`/Login`}>
+						to={`/login`}>
 						Login
+					</Link>
+					<Link
+						style={{ color: 'white', textDecoration: 'none' }}
+						to={`/register`}>
+						Register
 					</Link>
 				</Typography>
 				<IconButton onClick={btnDarkMode}>
