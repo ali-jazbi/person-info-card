@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
 import { styled } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -57,81 +58,56 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	},
 }));
 
-const SearchFilter = ({ page, setPage }) => {
-	// URL params and state
+const SearchFilter = ({}) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-	const [searchInput, setSearchInput] = useState('');
-	const [genderFilter, setGenderFilter] = useState(
-		searchParams.get('gender') || 'all'
-	);
-	const [ageFilter, setAgeFilter] = useState(searchParams.get('age') || 'all');
-	const searchInputRef = useRef(null);
+	const [search, setSearch] = useState(searchParams.get('search') ?? '');
+	const [searchDebounced] = useDebounce(search, 1000);
 
 	// Event handlers
-	const handleReset = useCallback(() => {
-		setSearchInput('');
-		setSearchTerm('');
-		setGenderFilter('all');
-		setAgeFilter('all');
-		setPage(1);
+	const handleReset = () => {
 		setSearchParams(new URLSearchParams());
-	}, [setSearchParams, setPage]);
+		handleClearSearch();
+	};
 
-	const handleAgeFilterChange = useCallback(
-		(event) => {
-			setAgeFilter(event.target.value);
-			setPage(1);
-		},
-		[setPage]
-	);
+	const handleAgeFilterChange = (event) => {
+		setSearchParams((params) => {
+			params.set('age', event.target.value);
+			return params;
+		});
+	};
 
-	const handleGenderFilterChange = useCallback(
-		(event) => {
-			setGenderFilter(event.target.value);
-			setPage(1);
-		},
-		[setPage]
-	);
+	const handleGenderFilterChange = (event) => {
+		setSearchParams((params) => {
+			params.set('gender', event.target.value);
+			return params;
+		});
+	};
 
-	const handleSearchChange = useCallback((event) => {
-		setSearchInput(event.target.value);
-	}, []);
-
-	const handleSearch = useCallback(() => {
-		setSearchTerm(searchInput);
-		setPage(1);
-	}, [searchInput, setPage]);
-
-	const handleClearSearch = useCallback(() => {
-		setSearchInput('');
-		setSearchTerm('');
-		setPage(1);
-		searchInputRef.current.focus();
-	}, [setPage]);
-
-	// Effects
-	useEffect(() => {
-		if (searchInputRef.current) {
-			searchInputRef.current.focus();
-		}
-	}, [searchInput]);
+	const handleSearchChange = (event) => {
+		setSearch(event.target.value);
+	};
 
 	useEffect(() => {
-		const params = new URLSearchParams();
-		if (page !== 1) params.append('page', page);
-		if (searchTerm) params.append('search', searchTerm);
-		if (genderFilter !== 'all') params.append('gender', genderFilter);
-		if (ageFilter !== 'all') params.append('age', ageFilter);
+		setSearchParams((params) => {
+			if (searchDebounced?.length > 1) {
+				params.set('search', searchDebounced);
+			} else {
+				params.delete('search');
+			}
+			return params;
+		});
+	}, [searchDebounced]);
 
-		setSearchParams(params);
-	}, [page, searchTerm, genderFilter, ageFilter, setSearchParams]);
+	const handleClearSearch = () => {
+		setSearch('');
+	};
 
 	// Main render
 	return (
 		<Grid
 			container
-			spacing={3}>
+			spacing={3}
+			mt={2}>
 			{/* Header and Search */}
 			<Grid
 				item
@@ -151,23 +127,13 @@ const SearchFilter = ({ page, setPage }) => {
 					</Typography>
 					<Search>
 						<SearchIconWrapper>
-							<IconButton
-								onClick={handleSearch}
-								sx={{
-									position: 'absolute',
-									left: 8,
-									top: '50%',
-									transform: 'translateY(-50%)',
-								}}>
-								<SearchIcon />
-							</IconButton>
+							<SearchIcon />
 						</SearchIconWrapper>
 						<StyledInputBase
 							placeholder='Search…'
 							inputProps={{ 'aria-label': 'search' }}
-							value={searchInput}
+							value={search}
 							onChange={handleSearchChange}
-							inputRef={searchInputRef}
 						/>
 						<IconButton
 							sx={{
@@ -208,7 +174,7 @@ const SearchFilter = ({ page, setPage }) => {
 							row
 							aria-label='gender'
 							name='gender'
-							value={genderFilter}
+							value={searchParams.get('gender')}
 							onChange={handleGenderFilterChange}>
 							<FormControlLabel
 								value='all'
@@ -235,7 +201,7 @@ const SearchFilter = ({ page, setPage }) => {
 							row
 							aria-label='age'
 							name='age'
-							value={ageFilter}
+							value={searchParams.get('age')}
 							onChange={handleAgeFilterChange}>
 							<FormControlLabel
 								value='all'

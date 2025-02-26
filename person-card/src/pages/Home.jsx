@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Container, Grid, Pagination, Box } from '@mui/material';
 import PersonCard from '../components/PersonCard';
 import SearchFilter from '../components/SearchFilter';
@@ -10,8 +10,13 @@ import { useQuery } from '@tanstack/react-query';
 const ITEMS_PER_PAGE = 4;
 
 const Home = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
 	// Data fetching
-	const peopleQuery = useQuery({
+	const {
+		data: people,
+		isLoading,
+		isError,
+	} = useQuery({
 		queryKey: ['people'],
 		queryFn: () => {
 			return axios.get('https://dummyjson.com/users').then((response) => {
@@ -19,31 +24,75 @@ const Home = () => {
 			});
 		},
 	});
-	// Pagnation And Pages
-	const [searchParams] = useSearchParams();
-	const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
+
+	let page = Number(searchParams.get('page') ?? 1);
+
 	const handlePageChange = (newPage) => {
-		setPage(newPage);
+		setSearchParams((prev) => {
+			prev.set('page', newPage);
+			return prev;
+		});
 	};
-	const paginatedData = peopleQuery.data
-		? peopleQuery.data.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
-		: [];
-	const pageCount = peopleQuery.data
-		? Math.ceil(peopleQuery.data.length / ITEMS_PER_PAGE)
-		: 0;
+
+	// Pagnation And Pages
+
+	const filteredData = (people ?? [])?.filter((person) => {
+		let isValid = {};
+		if (searchParams.get('gender')) {
+			if (
+				person.gender === searchParams.get('gender') ||
+				searchParams.get('gender') == 'all'
+			) {
+				isValid.gender = true;
+			} else {
+				isValid.gender = false;
+			}
+		}
+		if (searchParams.get('age')) {
+			switch (searchParams.get('age')) {
+				case 'all':
+					isValid.age = true;
+					break;
+				case 'young':
+					isValid.age = person.age <= 30;
+					break;
+				case 'old':
+					isValid.age = 30 < person.age;
+					break;
+			}
+		}
+		if (searchParams.get('search')) {
+			isValid.search = (person?.firstName + ' ' + person?.lastName)
+				?.toLowerCase()
+				?.includes(searchParams.get('search')?.toLowerCase());
+		}
+
+		return !Object.values(isValid)?.some((v) => v === false);
+	});
+
+	const paginatedData = filteredData?.slice(
+		(page - 1) * ITEMS_PER_PAGE,
+		page * ITEMS_PER_PAGE
+	);
+
+	const pageCount = Math.ceil((filteredData?.length ?? 0) / ITEMS_PER_PAGE);
+
+	useEffect(() => {
+		setSearchParams((prev) => {
+			prev?.delete('page');
+
+			return prev;
+		});
+	}, [pageCount]);
 
 	// Main render
 	return (
-		<Container
-			sx={{ minHeight: 'calc(100vh - 64px)', paddingTop: 4, paddingBottom: 5 }}>
+		<Container>
 			<Grid
 				container
 				spacing={3}>
 				{/* Header and Search and Filter */}
-				<SearchFilter
-					page={page}
-					setPage={setPage}
-				/>
+				<SearchFilter />
 				{/* Dialog Box Show */}
 				<Grid
 					item
@@ -54,8 +103,10 @@ const Home = () => {
 				<Grid
 					item
 					xs={12}>
-					{peopleQuery?.isLoading ? (
+					{isLoading ? (
 						<LoadingSkeletons />
+					) : isError ? (
+						<div>Error fetching data</div>
 					) : (
 						<>
 							<Grid
@@ -72,7 +123,7 @@ const Home = () => {
 									</Grid>
 								))}
 							</Grid>
-							{peopleQuery?.data && peopleQuery.data.length > 0 && (
+							{people && people.length > 0 && (
 								<Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
 									<Pagination
 										count={pageCount}

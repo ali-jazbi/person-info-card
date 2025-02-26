@@ -3,6 +3,8 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useContext } from 'react';
 import { ThemeContext } from '../App';
+import { Link } from 'react-router-dom';
+
 const Header = () => {
 	const { darkMode, btnDarkMode } = useContext(ThemeContext);
 	return (
@@ -26,7 +28,16 @@ const Header = () => {
 					sx={{
 						fontWeight: 'bold',
 					}}>
-					Person Management
+					<Link
+						style={{ color: 'white', textDecoration: 'none' }}
+						to={`/`}>
+						Person Management
+					</Link>
+					<Link
+						style={{ color: 'white', textDecoration: 'none', marginInline: '50px' }}
+						to={`/Login`}>
+						Login
+					</Link>
 				</Typography>
 				<IconButton onClick={btnDarkMode}>
 					{darkMode ? <Brightness7Icon /> : <Brightness4Icon />}

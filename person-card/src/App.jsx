@@ -6,7 +6,9 @@ import {
 	alpha,
 	lighten,
 } from '@mui/material';
+import Landing from './pages/Landing.jsx';
 import Home from './pages/Home.jsx';
+import Login from './pages/Login.jsx';
 import PersonPage from './pages/Users/PersonPage.jsx';
 import Layout from './layout/Layout';
 import { Routes, Route } from 'react-router-dom';
@@ -110,7 +112,15 @@ function App() {
 						<Route element={<Layout />}>
 							<Route
 								path='/'
+								element={<Landing />}
+							/>
+							<Route
+								path='/people'
 								element={<Home />}
+							/>
+							<Route
+								path='/login'
+								element={<Login />}
 							/>
 							<Route
 								path='user/:id'
